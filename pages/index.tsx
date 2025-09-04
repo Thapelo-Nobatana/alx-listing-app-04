@@ -1,14 +1,46 @@
 import React from "react";
+import axios from "axios";
 import { PROPERTYLISTINGSAMPLE } from "@/constants";
 import { PLACEHOLDER_IMAGE } from "@/constants";
 import { PropertyProps } from "@/interfaces";
 import Pill from "@/components/common/Pill";
 import Card from "@/components/common/Card";
-
+// import PropertyCard from "@/components/common/PropertyCard";
+import { useEffect, useState } from "react";
 
 const filters = ["Top Villa", "Self Checkin", "Beachfront", "Pet Friendly", "Mountain View"];
 
 const HomePage: React.FC = () => {
+
+  const [properties, setProperties] = useState<PropertyProps[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+    
+  useEffect(() => {
+    const fatchProperties = async () => {
+      try{
+        const response = await axios.get("/api/properties");
+
+        setProperties(response.data);
+        setLoading(false)
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+        
+
+      } finally {
+
+         setLoading(false);
+      }
+    }
+
+    fatchProperties();
+  }, []);
+
+  if (loading) {
+    return <p>Loading...</p>
+  }
+
+
+
   return (
     <div className="px-4 md:px-12">
       {/* Hero Section */}
@@ -38,10 +70,20 @@ const HomePage: React.FC = () => {
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10 mb-20">
         {
           PROPERTYLISTINGSAMPLE.map((property: PropertyProps ) => (
-            <Card key={property.name} property={property} />
+             <Card key={property.name} property={property} />
           ))
         }
       </section>
+
+    {/* data fetched from api */}
+
+     {/* <section className="grid grid-cols-3 gap-4">
+        {
+          properties.map((property) => (
+            <PropertyCard key={property.id} property={property} />
+          ))
+        }
+     </section> */}
     </div>
   );
 };
